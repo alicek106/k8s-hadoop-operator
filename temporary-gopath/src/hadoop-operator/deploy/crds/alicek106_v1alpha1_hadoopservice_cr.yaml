@@ -1,0 +1,7 @@
+apiVersion: alicek106.hadoop/v1alpha1
+kind: HadoopService
+metadata:
+  name: example-hadoopservice
+spec:
+  # Add fields here
+  clusterSize: 2
