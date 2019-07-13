@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hadoop-slave-svc
+  labels:
+    app: hadoop-slave
+spec:
+  ports:
+  - port: 22
+    name: ssh
+  clusterIP: None
+  selector:
+    app: hadoop-slave
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: hadoop-slave
+  labels:
+    app: hadoop-slave
+spec:
+  podManagementPolicy: "Parallel"
+  serviceName: hadoop-slave-svc
+  selector:
+    matchLabels:
+      app: hadoop-slave
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: hadoop-slave
+    spec:
+      containers:
+      - name: hadoop-slave
+        image: alicek106/hadoop:2.6.0-k8s-slave
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 22
+          name: ssh
+        env:
+        - name: MASTER_ENDPOINT
+          value: "hadoop-master-0.hadoop-master-svc.default.svc.cluster.local"

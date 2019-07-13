@@ -1,0 +1,82 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hadoop-master-svc-external
+  labels:
+    app: hadoop-master
+spec:
+  type: NodePort
+  ports:
+  - port: 50070
+    name: dashboard
+    targetPort: dashboard
+  - port: 22
+    name: ssh
+    targetPort: 22
+  - port: 8088
+    name: yarn
+    targetPort: yarn
+  selector:
+    app: hadoop-master
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hadoop-master-svc
+  labels:
+    app: hadoop-master
+spec:
+  clusterIP: None
+  selector:
+    app: hadoop-master
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: hadoop-master
+  labels:
+    app: hadoop-master
+spec:
+  serviceName: hadoop-master-svc
+  selector:
+    matchLabels:
+      app: hadoop-master
+  replicas: 1
+  podManagementPolicy: "Parallel"
+  template:
+    metadata:
+      labels:
+        app: hadoop-master
+    spec:
+      volumes:
+      - name: rootpwd
+        secret:
+          secretName: mysecret
+      containers:
+      - name: hadoop-master
+        image: alicek106/hadoop:2.6.0-k8s-master
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 50070
+          name: dashboard
+        - containerPort: 22
+          name: ssh
+        - containerPort: 8088
+          name: yarn
+        env:
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: SLAVES_COUNT
+          value: "1"
+        - name: SLAVES_SS_NAME
+          value: "hadoop-slave"
+        - name: SLAVES_SVC_NAME
+          value: "hadoop-slave-svc"
+        - name: MASTER_ENDPOINT
+          value: "hadoop-master-0.hadoop-master-svc.default.svc.cluster.local"
+        volumeMounts:
+        - name: rootpwd
+          mountPath: "/etc/rootpwd"
+          readOnly: true
