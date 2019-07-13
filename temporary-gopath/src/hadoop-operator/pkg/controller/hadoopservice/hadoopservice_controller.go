@@ -105,9 +105,9 @@ func (r *ReconcileHadoopService) Reconcile(request reconcile.Request) (reconcile
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+	/// 1. Create Slave StatefulSet and Service
 	slaveFound := &appsv1.StatefulSet{}
-	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name + "-slave", Namespace: instance.Namespace}, slaveFound)
+	err = r.client.Get(context.TODO(), types.NamespacedName{Name: instance.Name + "-hadoop-slave", Namespace: instance.Namespace}, slaveFound)
 
 	if err != nil && errors.IsNotFound(err) {
 		// Define a new StatefulSet for slaves
@@ -121,12 +121,23 @@ func (r *ReconcileHadoopService) Reconcile(request reconcile.Request) (reconcile
 			return reconcile.Result{}, err
 		}
 
-		// Statefulset created successfully - return and requeue
+		slaveService := r.serviceForSlave(instance)
+		err = r.client.Create(context.TODO(), slaveService)
+		if err != nil {
+			reqLogger.Error(err, "Failed to create new Service for slaves.", "Service.Namespace",
+				slaveService.Namespace, "Service.Name", slaveService.Name)
+			return reconcile.Result{}, err
+		}
+
+		// StatefulSet and Service created successfully - return and requeue
 		return reconcile.Result{Requeue: true}, nil
 	} else if err != nil {
 		reqLogger.Error(err, "Failed to get StatefulSet for slaves.")
 		return reconcile.Result{}, err
 	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// 2. Create Master StatefulSet and Service
 
 	return reconcile.Result{}, nil
 }
