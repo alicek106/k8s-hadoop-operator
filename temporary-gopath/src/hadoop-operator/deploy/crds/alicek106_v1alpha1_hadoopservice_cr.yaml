@@ -4,4 +4,4 @@ metadata:
   name: example-hadoopservice
 spec:
   # Add fields here
-  clusterSize: 2
+  clusterSize: 3
