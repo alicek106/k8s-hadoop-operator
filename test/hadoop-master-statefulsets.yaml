@@ -56,6 +56,11 @@ spec:
       - name: hadoop-master
         image: alicek106/hadoop:2.6.0-k8s-master
         imagePullPolicy: Always
+        readinessProbe:
+          tcpSocket:
+            port: 50070
+          initialDelaySeconds: 5
+          periodSeconds: 2
         ports:
         - containerPort: 50070
           name: dashboard
