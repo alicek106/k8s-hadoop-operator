@@ -29,4 +29,7 @@ password=$(cat /etc/rootpwd/password)
 echo "root:$password" | chpasswd
 
 /usr/sbin/sshd
+
+start-all.sh
+
 tail -f /dev/null
