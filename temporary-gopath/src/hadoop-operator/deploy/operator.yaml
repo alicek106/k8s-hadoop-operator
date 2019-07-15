@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: hadoop-operator
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       name: hadoop-operator
@@ -16,7 +16,7 @@ spec:
       containers:
         - name: hadoop-operator
           # Replace this with the built image name
-          image: REPLACE_IMAGE
+          image: alicek106/hadoop:2.6.0-operator
           command:
           - hadoop-operator
           imagePullPolicy: Always
