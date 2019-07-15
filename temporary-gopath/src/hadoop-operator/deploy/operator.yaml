@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: hadoop-operator
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       name: hadoop-operator
