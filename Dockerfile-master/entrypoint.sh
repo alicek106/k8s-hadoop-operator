@@ -30,6 +30,6 @@ echo "root:$password" | chpasswd
 
 /usr/sbin/sshd
 
-start-all.sh
+/hadoop/sbin/start-all.sh
 
 tail -f /dev/null
